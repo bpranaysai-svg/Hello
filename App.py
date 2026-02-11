@@ -1,0 +1,60 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Load the NFHS data
+df = pd.read_csv("All India National Family Health Survey.csv")
+
+# Filter for NFHS-4 Total data
+nfhs4_total = df[(df["Survey"] == "NFHS-4") & (df["Area"] == "Total")]
+
+# Sidebar filters
+st.sidebar.title("Filter Options")
+selected_states = st.sidebar.multiselect("Select States", nfhs4_total["India/States/UTs"].unique(), default=["India", "Andhra Pradesh", "Assam"])
+
+# Filter data
+filtered_data = nfhs4_total[nfhs4_total["India/States/UTs"].isin(selected_states)]
+
+# Dashboard title
+st.title("NFHS-4 Dashboard: Health & Social Indicators")
+
+# Literacy comparison
+st.subheader("Literacy Rates")
+fig_lit = px.bar(
+    filtered_data,
+    x="India/States/UTs",
+    y=["Characteristics of Adults (age 15-49) - Women who are literate (%)", "Characteristics of Adults (age 15-49) - Men who are literate (%)"],
+    barmode="group",
+    labels={"value": "Literacy (%)", "variable": "Gender"},
+    title="Literacy Rates by Gender"
+)
+st.plotly_chart(fig_lit)
+
+# Institutional births
+st.subheader("Institutional Births")
+fig_births = px.bar(
+    filtered_data,
+    x="India/States/UTs",
+    y="Delivery Care (for births in the 5 years before the survey) - Institutional births (%)",
+    labels={"value": "Institutional Births (%)"},
+    title="Institutional Births by State"
+)
+st.plotly_chart(fig_births)
+
+# Fertility rate
+st.subheader("Total Fertility Rate")
+fig_fertility = px.bar(
+    filtered_data,
+    x="India/States/UTs",
+    y="Marriage and Fertility - Total fertility rate (children per woman)",
+    labels={"value": "Fertility Rate"},
+    title="Total Fertility Rate by State"
+)
+st.plotly_chart(fig_fertility)
+
+# Women with bank accounts
+st.subheader("Women with Bank Accounts")
+fig_bank = px.bar(
+    filtered_data,
+    x="India/States/UTs",
+    y="Women's Empowerment and Gender Based Violence (age 15-49 years) - Women having a bank or savings
